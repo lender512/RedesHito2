@@ -1,16 +1,26 @@
-#From example: https://github.com/opencord/olt/blob/master/impl/src/main/resources/custom-topo.py
-# run with: ""
 
+'''
+ Copyright 2016-present Open Networking Foundation
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+'''
 from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.net import Mininet
 from mininet.topo import Topo
-from mininet.node import RemoteController, OVSSwitch
+from mininet.node import RemoteController, UserSwitch
 
-class ProjectTopo( Topo ):
+class MinimalTopo( Topo ):
+    "Minimal topology with a single switch and two hosts"
 
     def build( self ):
-        # Add switches
         s1 = self.addSwitch('s1')
         s2 = self.addSwitch('s2')
         s3 = self.addSwitch('s3')
@@ -29,12 +39,12 @@ class ProjectTopo( Topo ):
 
         # Add links
         self.addLink(s1,h1)
-        self.addLink(s1,s2)
+        self.addLink(s1,h2)
 
         self.addLink(s2,s4)
         self.addLink(s2,s5)
 
-        self.addLink(s3,s5)
+        self.addLink(s3,s6)
         self.addLink(s3,h7)
 
         self.addLink(s4,h3)
@@ -43,17 +53,18 @@ class ProjectTopo( Topo ):
 
         self.addLink(s6,h5)
         self.addLink(s6,h6)
+def runMinimalTopo():
+    "Bootstrap a Mininet network using the Minimal Topology"
 
-def runProjectTopo():
-
-    topo = ProjectTopo()
+    # Create an instance of our topology
+    topo = MinimalTopo()
 
     # Create a network based on the topology using OVS and controlled by
     # a remote controller.
     net = Mininet(
         topo=topo,
         controller=lambda name: RemoteController( name, ip='127.0.0.1' ),
-        switch=OVSSwitch,
+        switch=UserSwitch,
         autoSetMacs=True )
 
     # Actually start the network
@@ -68,9 +79,9 @@ def runProjectTopo():
 if __name__ == '__main__':
     # This runs if this file is executed directly
     setLogLevel( 'info' )
-    runProjectTopo()
+    runMinimalTopo()
 
 # Allows the file to be imported using `mn --custom <filename> --topo minimal`
 topos = {
-    'project': ProjectTopo
+    'minimal': MinimalTopo
 }
